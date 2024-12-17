@@ -1,0 +1,56 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+
+# Logs
+*.log
+
+# Dependency directories (for example, vendored dependencies)
+vendor/
+
+# Environment variables and config files
+.env
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS Finder files
+Icon?
+._*
+
+# macOS resource fork files
+*.RSRC
+
+# Go workspace files
+*.test
+*.prof
+
+# Build artifacts
+bin/
+build/
+
+# Coverage files
+*.cover
+*.cov
+
+# Go module files
+/go.sum
+/go.work
+
+# IDEs and editors
+.vscode/
+.idea/
+*.iml
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*~
