@@ -1,29 +1,49 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"sensor-data-gateway/internal/sensor"
+	"time"
+
+	"github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
 
-	dataGeneratorCfg := sensor.DataGeneratorCfg{
-		MaxTemp:  sensor.MaxTemperature,
-		MinTemp:  sensor.MinTemperature,
-		Interval: sensor.Interval,
+	conn, err := amqp091.Dial("amqp://guest:guest@localhost:5672/")
+	if err != nil {
+		log.Fatalf("Failed to connect to RabbitMQ")
 	}
+	defer conn.Close()
 
-	sensorIds := []string{"sensor1", "sensor2"}
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Fatalf("Failed to open a RabbitMQ channel")
+	}
+	defer ch.Close()
+
+	q, err := ch.QueueDeclare(
+		"temperature_measurements",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	if err != nil {
+		log.Fatalf("Failed to declare queue")
+	}
 
 	dataGenerator := sensor.DataGenerator{
-		Cfg:       dataGeneratorCfg,
-		SensorIds: sensorIds,
+		Cfg: sensor.DataGeneratorCfg{
+			MaxTemp:  sensor.MaxTemperature,
+			MinTemp:  sensor.MinTemperature,
+			Interval: time.Second * 5,
+		},
+		SensorIds: []string{"sensor1", "sensor2"},
 	}
 
-	abc := dataGenerator.GenerateData()
-
-	for _, v := range abc {
-		fmt.Println(v)
-	}
+	sensor.SimulateTemperatureMeasurement(dataGenerator, ch, q.Name)
 
 }
