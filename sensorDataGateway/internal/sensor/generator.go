@@ -2,6 +2,8 @@ package sensor
 
 import (
 	"math/rand"
+	"sensor-data-gateway/internal/data"
+
 	"time"
 )
 
@@ -10,12 +12,6 @@ const (
 	MaxTemperature = 30.0
 	Interval       = 1 * time.Minute
 )
-
-type dataMeasurement struct {
-	sensorId  string
-	timestamp time.Time
-	value     float64
-}
 
 type DataGeneratorCfg struct {
 	MaxTemp  float64
@@ -32,15 +28,16 @@ func generateTemperature() float64 {
 	return MinTemperature + rand.Float64()*(MaxTemperature-MinTemperature)
 }
 
-func (d DataGenerator) GenerateData() []dataMeasurement {
-	var data []dataMeasurement
+func (d DataGenerator) GenerateData() []data.DataMeasurement {
+	var measurementData []data.DataMeasurement
 	for _, v := range d.SensorIds {
-		measurement := dataMeasurement{
-			sensorId:  v,
-			timestamp: time.Now(),
-			value:     generateTemperature(),
+
+		measurement := data.DataMeasurement{
+			SensorId:  v,
+			Timestamp: time.Now(),
+			Value:     generateTemperature(),
 		}
-		data = append(data, measurement)
+		measurementData = append(measurementData, measurement)
 	}
-	return data
+	return measurementData
 }
