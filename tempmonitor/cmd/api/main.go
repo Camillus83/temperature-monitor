@@ -3,13 +3,17 @@ package main
 import (
 	"database/sql"
 	"flag"
-	"fmt"
 	"log/slog"
 	"os"
 	"time"
 
 	"github.com/charmbracelet/log"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
+)
+
+const (
+	exitSuccess int = iota
+	exitFailure
 )
 
 type config struct {
@@ -48,21 +52,29 @@ func newConfig() *config {
 		"development",
 		"Environment (development|staging|production)",
 	)
-	flag.StringVar(&cfg.db.dsn, "dsn", "tempmonitor.db", "SQLite DSN")
+	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://dbuser@dbpwd:localhost/tempmonitor?sslmode=false", "PostgreSQL DSN")
 
 	flag.Parse()
 	return cfg
 }
 
+func openDB(cfg *config) (*sql.DB, error) {
+	db, err := sql.Open("postgres", cfg.db.dsn)
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+
+}
+
 func main() {
 	cfg := newConfig()
 	logger := newLogger()
-
-	db, err := sql.Open("sqlite3", cfg.db.dsn)
+	db, err := openDB(cfg)
 	if err != nil {
-		logger.Error("Failed to open SQLite db", err)
+		logger.Error("Cannot connect to DB", "err", err)
+		os.Exit(exitFailure)
 	}
-	defer db.Close()
 
 	app := &application{
 		cfg:    *cfg,
@@ -70,5 +82,7 @@ func main() {
 		db:     db,
 	}
 
-	fmt.Println(app.cfg.port)
+	log.Info("hi")
+	log.Info("Running on Port: ", app.cfg.port)
+
 }

@@ -1,6 +1,19 @@
 version: '3.2'
 
 services:
+  db:
+    container_name: db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: dbpwd
+      POSTGRES_DB: tempmonitor
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5431:5432"
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
@@ -17,3 +30,5 @@ networks:
   rabbitmq_go_net:
     driver: bridge
 
+volumes:
+  pgdata:
