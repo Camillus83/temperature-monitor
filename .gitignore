@@ -13,6 +13,7 @@ vendor/
 
 # Environment variables and config files
 .env
+.envrc
 
 # macOS system files
 .DS_Store

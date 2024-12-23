@@ -5,10 +5,12 @@ import (
 	"flag"
 	"log/slog"
 	"os"
+	"tempMonitor/internal/data"
 	"time"
 
 	"github.com/charmbracelet/log"
 	_ "github.com/lib/pq"
+	"github.com/rabbitmq/amqp091-go"
 )
 
 const (
@@ -22,11 +24,16 @@ type config struct {
 	db   struct {
 		dsn string
 	}
+	rabbitmq struct {
+		url string
+	}
 }
 type application struct {
-	cfg    config
-	logger *slog.Logger
-	db     *sql.DB
+	cfg      config
+	logger   *slog.Logger
+	db       *sql.DB
+	rabbitmq *amqp091.Connection
+	models   data.Models
 }
 
 func newLogger() *slog.Logger {
@@ -52,7 +59,8 @@ func newConfig() *config {
 		"development",
 		"Environment (development|staging|production)",
 	)
-	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://dbuser@dbpwd:localhost/tempmonitor?sslmode=false", "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://dbuser:dbpwd@localhost:5431/tempmonitor?sslmode=disable", "PostgreSQL DSN")
+	flag.StringVar(&cfg.rabbitmq.url, "rabbitmq-url", "amqp://guest:guest@localhost:5672/", "RabbitMQ URL")
 
 	flag.Parse()
 	return cfg
@@ -64,6 +72,14 @@ func openDB(cfg *config) (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func openRabbitMQ(cfg *config) (*amqp091.Connection, error) {
+	conn, err := amqp091.Dial(cfg.rabbitmq.url)
+	if err != nil {
+		return nil, err
+	}
+	return conn, nil
 
 }
 
@@ -75,14 +91,30 @@ func main() {
 		logger.Error("Cannot connect to DB", "err", err)
 		os.Exit(exitFailure)
 	}
+	defer db.Close()
+
+	rabbitmq, err := openRabbitMQ(cfg)
+	if err != nil {
+		logger.Error("Cannot connect to RabbitMQ", "err", err)
+		os.Exit(exitFailure)
+	}
+	defer rabbitmq.Close()
 
 	app := &application{
-		cfg:    *cfg,
-		logger: logger,
-		db:     db,
+		cfg:      *cfg,
+		logger:   logger,
+		db:       db,
+		rabbitmq: rabbitmq,
+		models:   data.NewModels(db),
 	}
 
-	log.Info("hi")
-	log.Info("Running on Port: ", app.cfg.port)
+	go app.listenToRabbitMQ("temperature_measurements")
+
+	err = app.serve()
+
+	if err != nil {
+		logger.Error("Jebudut", "err", err)
+		os.Exit(exitFailure)
+	}
 
 }
