@@ -1,0 +1,17 @@
+package pages
+
+import (
+    "tempMonitor/views/layouts"
+)
+
+templ Home() {
+    @layouts.Base {
+        @HomeBody()
+    }
+}
+
+templ HomeBody() {
+    <div>
+    Hello World
+    </div>
+}

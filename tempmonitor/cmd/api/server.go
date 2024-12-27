@@ -4,7 +4,8 @@ import "net/http"
 
 func (app *application) serve() error {
 	srv := &http.Server{
-		Addr: ":4000",
+		Addr:    ":4000",
+		Handler: app.routes(),
 		// Handler: app.routes(),
 	}
 
