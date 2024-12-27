@@ -1,17 +1,15 @@
 package pages
 
-import (
-    "tempMonitor/views/layouts"
-)
+import "tempMonitor/views/layouts"
 
 templ Home() {
-    @layouts.Base {
-        @HomeBody()
-    }
+	@layouts.Base() {
+		@HomeBody()
+	}
 }
 
 templ HomeBody() {
-    <div>
-    Hello World
-    </div>
+	<div>
+		Hello World
+	</div>
 }
