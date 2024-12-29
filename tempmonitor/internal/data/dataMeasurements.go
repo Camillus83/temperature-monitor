@@ -25,3 +25,45 @@ func (dm DataMeasurementModel) Insert(dataMeasurement *DataMeasurement) error {
 	args := []any{dataMeasurement.SensorId, dataMeasurement.Value, dataMeasurement.Timestamp}
 	return dm.DB.QueryRow(query, args...).Scan(&dataMeasurement.SensorId)
 }
+
+func (dm DataMeasurementModel) GetAllLastMeasurement() ([]*DataMeasurement, error) {
+	query := `
+		SELECT t1.sensorId, t1.timestamp, t1.temperature
+		FROM data_measurement t1
+		INNER JOIN (
+			SELECT 
+				sensorId,
+				MAX(timestamp) AS MaxTimestamp
+			FROM
+				data_measurement
+			GROUP BY
+				sensorId
+		) t2
+	ON t1.sensorId = t2.sensorId AND t1.timestamp = t2.MaxTimestamp
+	`
+	rows, err := dm.DB.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// totalRecords := 0
+	dataMeasurements := []*DataMeasurement{}
+
+	for rows.Next() {
+		var dataMeasurement DataMeasurement
+		err := rows.Scan(
+			&dataMeasurement.SensorId,
+			&dataMeasurement.Timestamp,
+			&dataMeasurement.Value,
+		)
+		if err != nil {
+			return nil, err
+		}
+		dataMeasurements = append(dataMeasurements, &dataMeasurement)
+	}
+
+	return dataMeasurements, nil
+
+}

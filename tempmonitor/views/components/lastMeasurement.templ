@@ -1,0 +1,10 @@
+package components
+
+import "tempMonitor/internal/data"
+
+templ lastMeasurement(dm data.DataMeasurement) {
+	<div>
+		<h1>{ dm.SensorId }</h1>
+		<p>{ dm.Timestamp.String() }</p>
+	</div>
+}

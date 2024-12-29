@@ -5,6 +5,7 @@ import "database/sql"
 type Models struct {
 	DataMeasurements interface {
 		Insert(dataMeasurement *DataMeasurement) error
+		GetAllLastMeasurement() ([]*DataMeasurement, error)
 	}
 }
 
