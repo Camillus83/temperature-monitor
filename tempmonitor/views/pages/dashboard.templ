@@ -1,0 +1,25 @@
+package pages
+
+import (
+	"tempMonitor/internal/data"
+	"tempMonitor/views/components"
+	"tempMonitor/views/layouts"
+)
+
+type DashboardPageProps struct {
+	SensorData []data.DataMeasurement
+}
+
+templ DashboardPage(props DashboardPageProps) {
+	@layouts.Base() {
+		@DashboardBody(props)
+	}
+}
+
+templ DashboardBody(props DashboardPageProps) {
+	<div>
+		for _, data := range props.SensorData {
+			@components.SensorDataCard(components.NewSensorDataCardCMV(data))
+		}
+	</div>
+}

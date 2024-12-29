@@ -9,7 +9,7 @@ import (
 func (app *application) routes() http.Handler {
 
 	router := httprouter.New()
-	router.HandlerFunc(http.MethodGet, "/dashboard", app.dashboardHandler)
+	router.HandlerFunc(http.MethodGet, "/", app.dashboardHandler)
 
 	return router
 }

@@ -48,7 +48,6 @@ func (dm DataMeasurementModel) GetAllLastMeasurement() ([]*DataMeasurement, erro
 	}
 	defer rows.Close()
 
-	// totalRecords := 0
 	dataMeasurements := []*DataMeasurement{}
 
 	for rows.Next() {
@@ -62,6 +61,10 @@ func (dm DataMeasurementModel) GetAllLastMeasurement() ([]*DataMeasurement, erro
 			return nil, err
 		}
 		dataMeasurements = append(dataMeasurements, &dataMeasurement)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return dataMeasurements, nil

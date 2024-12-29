@@ -27,7 +27,7 @@ func (app *application) dashboardHandler(w http.ResponseWriter, r *http.Request)
 		SensorData: sensorData,
 	}
 
-	err = pages.Home(props).Render(r.Context(), w)
+	err = pages.DashboardPage(props).Render(r.Context(), w)
 	if err != nil {
 
 	}
