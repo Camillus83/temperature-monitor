@@ -17,7 +17,7 @@ templ DashboardPage(props DashboardPageProps) {
 }
 
 templ DashboardBody(props DashboardPageProps) {
-	<div>
+	<div class="sensorDataCardsSection">
 		for _, data := range props.SensorData {
 			@components.SensorDataCard(components.NewSensorDataCardCMV(data))
 		}

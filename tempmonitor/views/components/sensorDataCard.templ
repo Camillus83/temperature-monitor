@@ -20,7 +20,7 @@ func NewSensorDataCardCMV(dm data.DataMeasurement) (cmv SensorDataCardCMV) {
 }
 
 templ SensorDataCard(m SensorDataCardCMV) {
-	<div>
+	<div class="sensorDataCard" id={ m.SensorId }>
 		SensorID: { m.SensorId }
 		Temperature: { m.Temperature }
 		Last updated: { m.LastUpdated }

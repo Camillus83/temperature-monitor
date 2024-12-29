@@ -26,6 +26,29 @@ func (dm DataMeasurementModel) Insert(dataMeasurement *DataMeasurement) error {
 	return dm.DB.QueryRow(query, args...).Scan(&dataMeasurement.SensorId)
 }
 
+func (dm DataMeasurementModel) GetLastMeasurement(sensorId string) (*DataMeasurement, error) {
+	query := `
+		SELECT t1.sensorId, t1.timestamp, t1.temperature
+		FROM data_measurement
+		WHERE sensorId = $1
+		ORDER BY timestamp DESC
+		LIMIT 1
+	`
+	var dataMeasurement DataMeasurement
+	err := dm.DB.QueryRow(query, sensorId).Scan(
+		&dataMeasurement.SensorId,
+		&dataMeasurement.Timestamp,
+		&dataMeasurement.Value,
+	)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &dataMeasurement, nil
+}
+
 func (dm DataMeasurementModel) GetAllLastMeasurement() ([]*DataMeasurement, error) {
 	query := `
 		SELECT t1.sensorId, t1.timestamp, t1.temperature

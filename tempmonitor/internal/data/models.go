@@ -6,6 +6,7 @@ type Models struct {
 	DataMeasurements interface {
 		Insert(dataMeasurement *DataMeasurement) error
 		GetAllLastMeasurement() ([]*DataMeasurement, error)
+		GetLastMeasurement(sensorId string) (*DataMeasurement, error)
 	}
 }
 
